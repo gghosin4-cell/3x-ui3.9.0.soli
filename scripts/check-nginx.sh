@@ -52,8 +52,13 @@ wait_port() { # wait_port <port>
 
 mkdir -p "$WORK/logs"
 export NGINX_PORT="$PORT"
-envsubst '${NGINX_PORT}' < "$ROOT/nginx.conf.template" > "$WORK/nginx.conf" \
-    || fail "envsubst نتوانست قالب را رندر کند"
+if command -v envsubst >/dev/null 2>&1; then
+    envsubst '${NGINX_PORT}' < "$ROOT/nginx.conf.template" > "$WORK/nginx.conf"
+else
+    # در ایمیج از gettext/envsubst استفاده می‌شود؛ برای محیط تست محلی sed کافی است
+    sed "s|\${NGINX_PORT}|$NGINX_PORT|g" "$ROOT/nginx.conf.template" > "$WORK/nginx.conf"
+fi
+[ -s "$WORK/nginx.conf" ] || fail "رندر قالب nginx.conf ناموفق بود"
 
 nginx -t -p "$WORK" -c "$WORK/nginx.conf" >/dev/null 2>&1 \
     || { nginx -t -p "$WORK" -c "$WORK/nginx.conf"; fail "سینتکس nginx.conf نامعتبر است"; }
