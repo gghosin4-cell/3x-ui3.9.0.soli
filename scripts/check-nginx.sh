@@ -83,6 +83,12 @@ code=$(curl -s -o "$WORK/root.txt" -w '%{http_code}' --max-time 5 "http://127.0.
 grep -q "x-ui is running" "$WORK/root.txt" || fail "متن پاسخ مسیر ریشه نامناسب است: $(head -c 200 "$WORK/root.txt")"
 echo "OK: مسیر ریشه بدون اینباند پاسخ 200 می‌دهد"
 
+# 1b) مسیر سلامت سبک برای بررسی‌های زیرساخت
+hz=$(curl -s -o "$WORK/health.txt" -w '%{http_code}' --max-time 5 "http://127.0.0.1:$PORT/healthz")
+[ "$hz" = "200" ] || fail "مسیر /healthz باید 200 بدهد، دریافت شد: $hz"
+grep -qx "ok" "$WORK/health.txt" || fail "پاسخ /healthz نامناسب است: $(head -c 200 "$WORK/health.txt")"
+echo "OK: /healthz پاسخ 200 می‌دهد"
+
 # 2) با سرویس‌های زنده: هر سه مسیر باید پروکسی شوند
 stub 2053 PANEL
 stub 2096 SUB
