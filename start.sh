@@ -3,8 +3,9 @@ set -e
 
 echo "🚀 Starting X-UI + nginx reverse proxy..."
 
-# nginx همیشه روی پورت ثابت 3000 گوش می‌دهد
-export NGINX_PORT=3000
+# nginx روی پورت سرویس گوش می‌دهد.
+# اگر پلتفرم متغیر PORT را تزریق کند همان استفاده می‌شود، وگرنه 3000 (پورت EXPOSE و پورت تنظیم‌شده‌ی سرویس).
+export NGINX_PORT="${PORT:-3000}"
 
 cd /usr/local/x-ui
 
