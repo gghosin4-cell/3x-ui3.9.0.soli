@@ -11,13 +11,22 @@ PORT="${TEST_PORT:-3999}"
 PIDS=()
 
 cleanup() {
+    local rc=$?
+    trap - EXIT
+    # nginx با -g pid راه افتاده، پس همان pid را مستقیم علامت می‌دهیم
     if [ -f "$WORK/nginx.pid" ]; then
-        nginx -p "$WORK" -c "$WORK/nginx.conf" -s quit >/dev/null 2>&1 || true
+        kill -TERM "$(cat "$WORK/nginx.pid")" >/dev/null 2>&1 || true
     fi
     for pid in "${PIDS[@]:-}"; do
-        [ -n "$pid" ] && kill "$pid" >/dev/null 2>&1 || true
+        [ -n "$pid" ] && kill -TERM "$pid" >/dev/null 2>&1 || true
     done
+    sleep 0.5
+    for pid in "${PIDS[@]:-}"; do
+        [ -n "$pid" ] && kill -KILL "$pid" >/dev/null 2>&1 || true
+    done
+    wait >/dev/null 2>&1 || true
     rm -rf "$WORK"
+    exit "$rc"
 }
 trap cleanup EXIT
 
