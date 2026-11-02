@@ -104,4 +104,11 @@ check "/managepanel/x"     "STUB-PANEL /managepanel/x"
 check "/sub/abc123"        "STUB-SUB /sub/abc123"
 check "/vless-ws"          "STUB-INBOUND /vless-ws"
 
+# 3) حتی وقتی اینباند زنده است، مسیر ریشه باید پاسخ سلامت nginx را بدهد
+# (اینباند xray برای مسیرهای ناشناخته 404 خالی می‌دهد و نباید روی ریشه اثر بگذارد)
+root_code=$(curl -s -o "$WORK/root2.txt" -w '%{http_code}' --max-time 5 "http://127.0.0.1:$PORT/")
+[ "$root_code" = "200" ] || fail "مسیر ریشه با اینباند فعال باید 200 بدهد، دریافت شد: $root_code"
+grep -q "x-ui is running" "$WORK/root2.txt" || fail "مسیر ریشه به‌جای پاسخ سلامت، پاسخ اینباند را داد: $(head -c 200 "$WORK/root2.txt")"
+echo "OK: مسیر ریشه با اینباند فعال هم پاسخ سلامت می‌دهد"
+
 echo "همه‌ی بررسی‌های nginx با موفقیت گذشتند"
