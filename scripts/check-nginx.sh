@@ -117,4 +117,16 @@ root_code=$(curl -s -o "$WORK/root2.txt" -w '%{http_code}' --max-time 5 "http://
 grep -q "x-ui is running" "$WORK/root2.txt" || fail "مسیر ریشه به‌جای پاسخ سلامت، پاسخ اینباند را داد: $(head -c 200 "$WORK/root2.txt")"
 echo "OK: مسیر ریشه با اینباند فعال هم پاسخ سلامت می‌دهد"
 
+# 4) start.sh باید پورت سرویس را از $PORT بگیرد و پیش‌فرض 3000 داشته باشد.
+#    (اشتباه در همین‌جا باعث شد پلتفرم روی پورت داخلی 2053 سرویس را منتشر کند و
+#    مسیر ریشه از طریق nginx در دسترس نباشد.)
+bash -n "$ROOT/start.sh" || fail "سینتکس start.sh نامعتبر است"
+port_line=$(grep -E '^export NGINX_PORT=' "$ROOT/start.sh" | head -n1)
+[ -n "$port_line" ] || fail "خط تعیین NGINX_PORT در start.sh پیدا نشد"
+resolved=$(PORT=4321 bash -c "$port_line; printf %s \"\$NGINX_PORT\"")
+[ "$resolved" = "4321" ] || fail "start.sh پورت تزریق‌شده‌ی PORT را نادیده می‌گیرد: $resolved"
+resolved_default=$(env -u PORT bash -c "$port_line; printf %s \"\$NGINX_PORT\"")
+[ "$resolved_default" = "3000" ] || fail "پورت پیش‌فرض start.sh باید 3000 باشد، دریافت شد: $resolved_default"
+echo "OK: start.sh پورت سرویس را از PORT می‌گیرد و پیش‌فرض 3000 دارد"
+
 echo "همه‌ی بررسی‌های nginx با موفقیت گذشتند"
