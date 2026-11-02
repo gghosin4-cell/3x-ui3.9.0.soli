@@ -30,12 +30,18 @@ http {
             proxy_set_header X-Forwarded-Proto $scheme;
         }
 
-        # مسیر ریشه‌ی سرویس: پاسخ سلامت ثابت
+        # مسیرهای سلامت سرویس: پاسخ ثابت و بدون وابستگی به بک‌اند
         # (اینباند روی 8080 برای مسیرهای ناشناخته 404 خالی می‌دهد و همین باعث
         # می‌شد بررسی آمادگی سرویس در ریشه شکست بخورد.)
         location = / {
             default_type text/plain;
             return 200 "x-ui is running\npanel: /managepanel/\nsub: /sub/<subId>\n";
+        }
+
+        location = /healthz {
+            default_type text/plain;
+            access_log off;
+            return 200 "ok\n";
         }
 
         # هر مسیر دیگه (اینباند VLESS/WebSocket) به پورت داخلی 8080
