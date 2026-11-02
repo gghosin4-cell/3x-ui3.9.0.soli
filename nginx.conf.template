@@ -37,6 +37,15 @@ http {
             proxy_set_header X-Real-IP $remote_addr;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_set_header X-Forwarded-Proto $scheme;
+
+            # اگر هنوز هیچ اینباندی روی 8080 تعریف نشده باشد، به‌جای خطا
+            # یک پاسخ سالم برمی‌گردانیم تا مسیر ریشه‌ی سرویس در دسترس بماند.
+            error_page 502 503 504 = @no_inbound;
+        }
+
+        location @no_inbound {
+            default_type text/plain;
+            return 200 "x-ui is running\npanel: /managepanel/\nsub: /sub/<subId>\n";
         }
     }
 }
