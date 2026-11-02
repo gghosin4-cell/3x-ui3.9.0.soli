@@ -5,6 +5,9 @@ http {
     server {
         listen ${NGINX_PORT};
 
+        # لاگ دسترسی روی خروجی استاندارد تا در لاگ‌های سرویس دیده شود
+        access_log /dev/stdout;
+
         # مسیر پنل وب (فوروارد به پورت داخلی 2053 که x-ui روش گوش می‌ده)
         location /managepanel/ {
             proxy_pass http://127.0.0.1:2053/managepanel/;
