@@ -38,7 +38,15 @@ http {
             return 200 "x-ui is running\npanel: /managepanel/\nsub: /sub/<subId>\n";
         }
 
+        # مسیر /healthz برای بررسی‌های داخلی و /health برای لبه‌ی پلتفرم
+        # (لبه‌ی سرویس، /healthz را به /health بازنویسی می‌کند؛ هر دو باید پاسخ ثابت بدهند)
         location = /healthz {
+            default_type text/plain;
+            access_log off;
+            return 200 "ok\n";
+        }
+
+        location = /health {
             default_type text/plain;
             access_log off;
             return 200 "ok\n";
